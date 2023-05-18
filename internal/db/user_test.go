@@ -11,7 +11,7 @@ import (
 const errTooLong = `pq: value too long`
 
 func TestDB_Register(t *testing.T) {
-	newId := make([]uint64, 0, 1)
+	newID := make([]uint64, 0, 1)
 	ctx := context.Background()
 	db, err := NewDB(ctx, "user=postgres sslmode=disable")
 	require.NoError(t, err)
@@ -75,11 +75,11 @@ func TestDB_Register(t *testing.T) {
 				t.Errorf("DB.Register() = %v, want %v", got, tt.idNotZero)
 			}
 			if got > 0 {
-				newId = append(newId, got)
+				newID = append(newID, got)
 			}
 		})
 	}
-	for _, id := range newId {
+	for _, id := range newID {
 		_, err = db.db.ExecContext(ctx, "DELETE FROM users WHERE user_id = $1", id)
 		require.NoError(t, err)
 	}
