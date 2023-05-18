@@ -20,7 +20,7 @@ func main() {
 	defer cancel()
 	lg := logger.NewLogger("main : ", log.LstdFlags|log.Lshortfile)
 	opt, _ := option.GetOptions()
-	db, err := db.NewDB(ctx, "user=postgres sslmode=disable")
+	db, err := db.NewDB(ctx, opt.DatabaseURI)
 	if err != nil {
 		lg.Println(err)
 		return
