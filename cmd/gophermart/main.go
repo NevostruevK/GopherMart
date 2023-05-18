@@ -8,7 +8,9 @@ import (
 	"syscall"
 
 	"github.com/NevostruevK/GopherMart.git/internal/db"
+	"github.com/NevostruevK/GopherMart.git/internal/server"
 	"github.com/NevostruevK/GopherMart.git/internal/util/logger"
+	"github.com/NevostruevK/GopherMart.git/internal/util/option"
 )
 
 func main() {
@@ -17,7 +19,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	lg := logger.NewLogger("main : ", log.LstdFlags|log.Lshortfile)
-
+	opt, _ := option.GetOptions()
 	db, err := db.NewDB(ctx, "user=postgres sslmode=disable")
 	if err != nil {
 		lg.Println(err)
@@ -27,5 +29,19 @@ func main() {
 		err := db.Close()
 		lg.Println(err)
 	}()
+
+	s, err := server.NewServer(db, opt.RunAddress)
+	if err != nil{
+		lg.Fatalln(err)
+	}
+	lg.Printf("Start server")
+	go func() {
+		go lg.Println(s.ListenAndServe())
+	}()
 	<-gracefulShutdown
+	if err = s.Shutdown(ctx); err != nil {
+		lg.Printf("ERROR : Server Shutdown error %v", err)
+	} else {
+		lg.Printf("Server Shutdown ")
+	}
 }

@@ -11,7 +11,7 @@ import (
 const errTooLong = `pq: value too long`
 
 func TestDB_Register(t *testing.T) {
-	newId := make([]int64, 0, 1)
+	newId := make([]uint64, 0, 1)
 	ctx := context.Background()
 	db, err := NewDB(ctx, "user=postgres sslmode=disable")
 	require.NoError(t, err)
@@ -45,7 +45,7 @@ func TestDB_Register(t *testing.T) {
 				u:   User{Login: "testUser123", Password: "testUser123AnotherPassword"}},
 			idNotZero: false,
 			wantErr:   true,
-			waitErr:   errDuplicateLogin,
+			waitErr:   ErrDuplicateLogin,
 		},
 		{
 			name: "add big login ",

@@ -21,7 +21,7 @@ func TestDB_UpdateOrder(t *testing.T) {
 	require.NoError(t, err)
 	type args struct {
 		ctx    context.Context
-		userID int64
+		userID uint64
 		order  *Order
 	}
 	tests := []struct {

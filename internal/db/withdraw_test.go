@@ -12,7 +12,7 @@ const errDuplicateWithdrawal = `pq: duplicate key value violates unique constrai
 
 func TestDB_PostWithdrawnOrder(t *testing.T) {
 	order := "123456789123214214"
-	users := make([]int64, 0, 2)
+	users := make([]uint64, 0, 2)
 	withdrawal := float64(100)
 	bigWithdrawal := float64(1000000)
 	ctx := context.Background()
@@ -29,7 +29,7 @@ func TestDB_PostWithdrawnOrder(t *testing.T) {
 
 	type args struct {
 		ctx    context.Context
-		userID int64
+		userID uint64
 		order  *WithdrawnOrder
 	}
 	tests := []struct {
@@ -48,7 +48,7 @@ func TestDB_PostWithdrawnOrder(t *testing.T) {
 				order:  &WithdrawnOrder{Number: order, Withdrawn: &withdrawal},
 			},
 			wantErr: true,
-			waitErr: errNotEnoughFounds,
+			waitErr: ErrNotEnoughFounds,
 		},
 		{
 			name: "ERROR: not enough money (there is a record in balance)",
@@ -59,7 +59,7 @@ func TestDB_PostWithdrawnOrder(t *testing.T) {
 				order:  &WithdrawnOrder{Number: order, Withdrawn: &bigWithdrawal},
 			},
 			wantErr: true,
-			waitErr: errNotEnoughFounds,
+			waitErr: ErrNotEnoughFounds,
 		},
 		{
 			name: "OK: add normal withdrawal",

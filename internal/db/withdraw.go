@@ -9,13 +9,13 @@ import (
 	"time"
 )
 
-const errNotEnoughFounds = `there are not enough founds`
+const ErrNotEnoughFounds = `there are not enough founds`
 const initialWithdrawnOrdersCount = 4
 
 type WithdrawnOrder struct {
-	Number    string     `json:"number"`                // Номер заказа
-	Withdrawn *float64   `json:"sum"`                   // Списано баллов
-	Uploaded  *time.Time `json:"uploaded_at,omitempty"` // Время загрузки заказа
+	Number    string     `json:"order"`                  // Номер заказа
+	Withdrawn *float64   `json:"sum"`                    // Списано баллов
+	Uploaded  *time.Time `json:"processed_at,omitempty"` // Время загрузки заказа
 }
 
 func (o WithdrawnOrder) String() string {
@@ -25,7 +25,7 @@ func (o WithdrawnOrder) String() string {
 	return fmt.Sprintf("Number:%s Withdrawn:%f Uploaded:%v", o.Number, *o.Withdrawn, *o.Uploaded)
 }
 
-func (db *DB) GetWithdrawals(ctx context.Context, userID int64) ([]WithdrawnOrder, error) {
+func (db *DB) GetWithdrawals(ctx context.Context, userID uint64) ([]WithdrawnOrder, error) {
 	orders := make([]WithdrawnOrder, 0, initialWithdrawnOrdersCount)
 	rows, err := db.db.QueryContext(ctx, getWithdrawalsSQL, userID)
 	if err != nil {
@@ -44,7 +44,7 @@ func (db *DB) GetWithdrawals(ctx context.Context, userID int64) ([]WithdrawnOrde
 	return orders, rows.Err()
 }
 
-func (db *DB) PostWithdrawal(ctx context.Context, userID int64, order *WithdrawnOrder) error {
+func (db *DB) PostWithdrawal(ctx context.Context, userID uint64, order *WithdrawnOrder) error {
 	tx, err := db.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		db.lg.Println(err)
@@ -65,7 +65,7 @@ func (db *DB) PostWithdrawal(ctx context.Context, userID int64, order *Withdrawn
 		b = NewBalance(0, 0)
 	}
 	if *b.Current < *order.Withdrawn {
-		return fmt.Errorf(errNotEnoughFounds)
+		return fmt.Errorf(ErrNotEnoughFounds)
 	}
 	if _, err := tx.ExecContext(ctx, insertWithdrawalSQL, userID, order.Number, *order.Withdrawn, `now`); err != nil {
 		db.lg.Println(err)

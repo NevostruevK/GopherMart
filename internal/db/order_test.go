@@ -13,7 +13,7 @@ const errForeignKeyOrder = `pq: insert or update on table "orders" violates fore
 func TestDB_InsertOrder(t *testing.T) {
 	order := "123456789012312321321"
 	anotherOrder := "123456789012312321321123124"
-	users := make([]int64, 0, 2)
+	users := make([]uint64, 0, 2)
 	ctx := context.Background()
 	db, err := NewDB(ctx, "user=postgres sslmode=disable")
 	require.NoError(t, err)
@@ -26,14 +26,14 @@ func TestDB_InsertOrder(t *testing.T) {
 
 	type args struct {
 		ctx    context.Context
-		userID int64
+		userID uint64
 		order  string
 	}
 	tests := []struct {
 		name    string
 		db      *DB
 		args    args
-		wantID  int64
+		wantID  uint64
 		wantErr bool
 		waitErr string
 	}{
@@ -59,7 +59,7 @@ func TestDB_InsertOrder(t *testing.T) {
 			},
 			wantID:  users[0],
 			wantErr: true,
-			waitErr: errDuplicateOrder,
+			waitErr: ErrDuplicateOrder,
 		},
 		{
 			name: "add the same order for another user",
@@ -71,7 +71,7 @@ func TestDB_InsertOrder(t *testing.T) {
 			},
 			wantID:  users[0],
 			wantErr: true,
-			waitErr: errDuplicateOrder,
+			waitErr: ErrDuplicateOrder,
 		},
 		{
 			name: "add order for the wrong user",

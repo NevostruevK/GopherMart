@@ -16,7 +16,7 @@ func NewBalance(current, withdrawn float64) *Balance {
 	return &Balance{&current, &withdrawn}
 }
 
-func (db *DB) GetBalance(ctx context.Context, userID int64) (*Balance, error) {
+func (db *DB) GetBalance(ctx context.Context, userID uint64) (*Balance, error) {
 	b := Balance{}
 	if err := db.db.QueryRowContext(ctx, getBalanceSQL, userID).Scan(&b.Current, &b.Withdrawn); err != nil {
 		if !strings.Contains(err.Error(), errNoBalance) {
