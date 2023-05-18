@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	errNotJson = "Content-Type is not application/json"
+	errNotJSON = "Content-Type is not application/json"
 	errNotText = "Content-Type is not text/plain"
 )
 const (
@@ -34,9 +34,9 @@ func CheckHeadersMiddleware(next http.Handler) http.Handler {
 			}
 		default:
 			if !strings.Contains(r.Header.Get("Content-Type"), "application/json") {
-				lg.Println(errNotJson)
+				lg.Println(errNotJSON)
 				w.WriteHeader(http.StatusBadRequest)
-				io.WriteString(w, errNotJson)
+				io.WriteString(w, errNotJSON)
 				return
 			}
 		}
