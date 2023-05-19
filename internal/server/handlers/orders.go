@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/NevostruevK/GopherMart.git/internal/client"
 	"github.com/NevostruevK/GopherMart.git/internal/db"
 	"github.com/NevostruevK/GopherMart.git/internal/server/middleware"
 	"github.com/NevostruevK/GopherMart.git/internal/util/luhn"
@@ -19,7 +20,7 @@ const (
 	errNoOrders                    = "нет данных для ответа"
 )
 
-func PostOrder(s *db.DB) http.HandlerFunc {
+func PostOrder(s *db.DB, m *client.Manager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		lg := middleware.GetLogger(r)
 		lg.Println("PostOrder")
@@ -55,6 +56,7 @@ func PostOrder(s *db.DB) http.HandlerFunc {
 			}
 			return
 		}
+		go m.NewTask(userID, string(b)).StandInLine()
 		lg.Println(orderIsAccepted)
 		w.WriteHeader(http.StatusAccepted)
 		io.WriteString(w, orderIsAccepted)

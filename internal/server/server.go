@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 
+	"github.com/NevostruevK/GopherMart.git/internal/client"
 	"github.com/NevostruevK/GopherMart.git/internal/db"
 	"github.com/NevostruevK/GopherMart.git/internal/server/handlers"
 	"github.com/NevostruevK/GopherMart.git/internal/server/middleware"
@@ -10,7 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func NewServer(db *db.DB, address string) (*http.Server, error) {
+func NewServer(db *db.DB, address string, m *client.Manager) (*http.Server, error) {
 	tk, err := token.NewToken()
 	if err != nil {
 		return nil, err
@@ -25,7 +26,7 @@ func NewServer(db *db.DB, address string) (*http.Server, error) {
 
 	r.Post("/api/user/register", handlers.Authentication(db, tk, handlers.Register))
 	r.Post("/api/user/login", handlers.Authentication(db, tk, handlers.Login))
-	r.Post("/api/user/orders", handlers.PostOrder(db))
+	r.Post("/api/user/orders", handlers.PostOrder(db, m))
 	r.Post("/api/user/balance/withdraw", handlers.PostWithdraw(db))
 	r.Get("/api/user/orders", handlers.GetOrders(db))
 	r.Get("/api/user/balance", handlers.GetBalance(db))

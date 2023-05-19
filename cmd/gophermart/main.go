@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/NevostruevK/GopherMart.git/internal/client"
 	"github.com/NevostruevK/GopherMart.git/internal/db"
 	"github.com/NevostruevK/GopherMart.git/internal/server"
 	"github.com/NevostruevK/GopherMart.git/internal/util/logger"
@@ -17,7 +18,7 @@ func main() {
 	gracefulShutdown := make(chan os.Signal, 1)
 	signal.Notify(gracefulShutdown, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	//	defer cancel()
 	lg := logger.NewLogger("main : ", log.LstdFlags|log.Lshortfile)
 	opt, _ := option.GetOptions()
 	db, err := db.NewDB(ctx, opt.DatabaseURI)
@@ -29,9 +30,10 @@ func main() {
 		err := db.Close()
 		lg.Println(err)
 	}()
-
-	s, err := server.NewServer(db, opt.RunAddress)
-	if err != nil{
+	m := client.NewManager()
+	go m.Start(ctx, db, opt.AccrualSystemAddress, 1)
+	s, err := server.NewServer(db, opt.RunAddress, m)
+	if err != nil {
 		lg.Fatalln(err)
 	}
 	lg.Printf("Start server")
@@ -44,4 +46,5 @@ func main() {
 	} else {
 		lg.Printf("Server Shutdown ")
 	}
+	cancel()
 }

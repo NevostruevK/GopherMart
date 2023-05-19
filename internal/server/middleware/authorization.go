@@ -28,7 +28,7 @@ func AuthMiddleware(next http.Handler, tk *token.Token) http.Handler {
 			io.WriteString(w, errNotAuthorization)
 			return
 		}
-		lg.Printf("Authorization user %d",ID)
+		lg.Printf("Authorization user %d", ID)
 		ctx := context.WithValue(r.Context(), KeyUserID, ID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

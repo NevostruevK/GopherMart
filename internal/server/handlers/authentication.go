@@ -84,7 +84,7 @@ func Authentication(s *db.DB, tk *token.Token, rType requestType) http.HandlerFu
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		lg.Printf("login user %d",ID)
+		lg.Printf("login user %d", ID)
 		w.Header().Set("Authorization", token)
 
 		//		io.WriteString(w, fmt.Sprintln(id))

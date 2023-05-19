@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/NevostruevK/GopherMart.git/internal/client/task"
 	"github.com/stretchr/testify/require"
 )
 
@@ -22,7 +23,7 @@ func TestDB_UpdateOrder(t *testing.T) {
 	type args struct {
 		ctx    context.Context
 		userID uint64
-		order  *Order
+		order  *task.Order
 	}
 	tests := []struct {
 		name    string
@@ -36,7 +37,7 @@ func TestDB_UpdateOrder(t *testing.T) {
 			args: args{
 				ctx:    ctx,
 				userID: user,
-				order:  &Order{Number: orders[0], Status: "REGISTERED"},
+				order:  &task.Order{Number: orders[0], Status: "REGISTERED"},
 			},
 			wantErr: false,
 		},
@@ -46,7 +47,7 @@ func TestDB_UpdateOrder(t *testing.T) {
 			args: args{
 				ctx:    ctx,
 				userID: user,
-				order:  &Order{Number: orders[0], Status: "PROCESSED", Accrual: &accrual},
+				order:  &task.Order{Number: orders[0], Status: "PROCESSED", Accrual: &accrual},
 			},
 			wantErr: false,
 		},
@@ -56,7 +57,7 @@ func TestDB_UpdateOrder(t *testing.T) {
 			args: args{
 				ctx:    ctx,
 				userID: user,
-				order:  &Order{Number: orders[1], Status: "PROCESSED", Accrual: &accrual},
+				order:  &task.Order{Number: orders[1], Status: "PROCESSED", Accrual: &accrual},
 			},
 			wantErr: false,
 		},

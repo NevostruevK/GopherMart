@@ -5,16 +5,18 @@ import (
 	"database/sql"
 	"errors"
 	"strings"
+
+	"github.com/NevostruevK/GopherMart.git/internal/client/task"
 )
 
-func (db *DB) UpdateOrder(ctx context.Context, userID uint64, order *Order) error {
+func (db *DB) UpdateOrder(ctx context.Context, userID uint64, order *task.Order) error {
 	if order.Accrual == nil {
 		return db.UpdateStatusOrder(ctx, userID, order)
 	}
 	return db.UpdateAccrual(ctx, userID, order)
 }
 
-func (db *DB) UpdateStatusOrder(ctx context.Context, userID uint64, order *Order) error {
+func (db *DB) UpdateStatusOrder(ctx context.Context, userID uint64, order *task.Order) error {
 	if _, err := db.db.ExecContext(ctx, updateOrderStatusSQL, order.Number, order.Status); err != nil {
 		db.lg.Println(err)
 		return err
@@ -22,7 +24,7 @@ func (db *DB) UpdateStatusOrder(ctx context.Context, userID uint64, order *Order
 	return nil
 }
 
-func (db *DB) UpdateAccrual(ctx context.Context, userID uint64, order *Order) error {
+func (db *DB) UpdateAccrual(ctx context.Context, userID uint64, order *task.Order) error {
 	tx, err := db.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		db.lg.Println(err)
