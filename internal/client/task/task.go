@@ -23,8 +23,8 @@ const (
 )
 
 const (
-	errOrderAccrualNil      = "Accrual is nil"
-	errOrderAccrualNegative = "Accrual is negative"
+	errOrderAccrualNil      = "accrual is nil"
+	errOrderAccrualNegative = "accrual is negative"
 )
 
 func (o Order) Valid() error {
