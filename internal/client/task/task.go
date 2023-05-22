@@ -45,6 +45,7 @@ type Task struct {
 	TaskID       uint64
 	ErrorsNumber uint32
 	TriesNumber  uint32
+	Finished     bool
 	lg           log.Logger
 	fifo         chan Task
 	Order        *Order
@@ -52,14 +53,15 @@ type Task struct {
 
 func NewTask(userID, taskID uint64, fifo chan Task, number string) *Task {
 	return &Task{
-		userID,
-		taskID,
-		0,
-		0,
-		*logger.NewLogger(fmt.Sprintf("task %d :", taskID),
+		UserID:       userID,
+		TaskID:       taskID,
+		ErrorsNumber: 0,
+		TriesNumber:  0,
+		Finished:     false,
+		lg: *logger.NewLogger(fmt.Sprintf("task %d :", taskID),
 			log.Lshortfile|log.LstdFlags),
-		fifo,
-		&Order{Number: number, Status: NEW},
+		fifo:  fifo,
+		Order: &Order{Number: number, Status: NEW},
 	}
 }
 func (t Task) StandInLine() {

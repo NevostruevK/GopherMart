@@ -12,57 +12,77 @@ import (
 	"sync/atomic"
 
 	"github.com/NevostruevK/GopherMart.git/internal/client/task"
+	"github.com/NevostruevK/GopherMart.git/internal/db"
 	"github.com/NevostruevK/GopherMart.git/internal/util/fgzip"
 	"github.com/NevostruevK/GopherMart.git/internal/util/logger"
 )
 
 type worker struct {
-	client *http.Client
-	lg     *log.Logger
-	url    url.URL
+	client      *http.Client
+	lg          *log.Logger
+	url         url.URL
+	freeWorkers *int32
 }
 
-func NewWorker(address string, id uint64) *worker {
+func NewWorker(address string, id uint64, free *int32) *worker {
 	name := fmt.Sprintf("worker %d ", id)
 	lg := logger.NewLogger(name, log.Lshortfile|log.LstdFlags)
 	url := url.URL{
 		Scheme: "http",
 		Host:   address + "/",
 	}
-	return &worker{&http.Client{}, lg, url}
+	return &worker{&http.Client{}, lg, url, free}
 }
-func (w worker) Start(ctx context.Context, ch chan task.Task, free *int32) {
+
+func (w worker) free() {
+	atomic.AddInt32(w.freeWorkers, 1)
+}
+
+func (w worker) busy() {
+	atomic.AddInt32(w.freeWorkers, -1)
+}
+
+func (w worker) Start(ctx context.Context, s *db.DB, ch chan task.Task) {
 	w.lg.Println("Start")
-	atomic.AddInt32(free, 1)
+	w.free()
 	for {
 		select {
 		case task := <-ch:
 			w.lg.Printf("Get task %d", task.TaskID)
-			atomic.AddInt32(free, -1)
+			w.busy()
 			order, code, err := w.getOrder(ctx, task.Order.Number)
-			if err != nil {
-				w.lg.Println(err)
-				task.SetError(err)
-				go task.StandInLine()
-				atomic.AddInt32(free, 1)
-				break
-			}
-			if code != http.StatusOK {
-				w.lg.Println(err)
-				task.SetTry(code)
-				go task.StandInLine()
-				atomic.AddInt32(free, 1)
+			if err != nil || code != http.StatusOK {
+				w.wrongCompletition(ctx, task, err, code)
 				break
 			}
 			if ok := task.NeedUpdateOrder(*order); ok {
-				goDatatBase
+				err = s.UpdateOrder(ctx, task.UserID, task.Order)
+				if err != nil {
+					w.wrongCompletition(ctx, task, err, code)
+					break
+				}
+				w.lg.Printf("task %d complete", task.TaskID)
+				task.Finished = true
+				go task.StandInLine()
+				w.free()
 			}
 		case <-ctx.Done():
 			w.lg.Println("Finished")
-			atomic.AddInt32(free, 1)
+			w.free()
 			return
 		}
 	}
+}
+func (w worker) wrongCompletition(ctx context.Context, task task.Task, err error, code int) {
+	if err != nil {
+		w.lg.Printf("task %d complete with err %v", task.TaskID, err)
+		task.SetError(err)
+	} else { // code != http.StatusOK
+		w.lg.Printf("task %d complete with code %d", task.TaskID, code)
+		task.SetTry(code)
+	}
+	go task.StandInLine()
+	w.free()
 }
 
 func (w worker) getOrder(ctx context.Context, number string) (*task.Order, int, error) {
