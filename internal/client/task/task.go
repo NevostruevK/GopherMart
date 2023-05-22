@@ -19,6 +19,13 @@ const (
 	PROCESSED  status = "PROCESSED"
 )
 
+func (o Order) String() string{
+	if o.Accrual == nil{
+		return fmt.Sprintf("%s : %s ",o.Number, o.Status)
+	}	
+	return  fmt.Sprintf("%s : %s : %f",o.Number, o.Status, *o.Accrual)
+}
+
 const (
 	errOrderAccrualNil      = "accrual is nil"
 	errOrderAccrualNegative = "accrual is negative"

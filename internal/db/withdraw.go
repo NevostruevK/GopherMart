@@ -14,15 +14,15 @@ const initialWithdrawnOrdersCount = 4
 
 type WithdrawnOrder struct {
 	Number    string     `json:"order"`                  // Номер заказа
-	Withdrawn *float64   `json:"sum"`                    // Списано баллов
+	Withdrawn float64    `json:"sum"`                    // Списано баллов
 	Uploaded  *time.Time `json:"processed_at,omitempty"` // Время загрузки заказа
 }
 
 func (o WithdrawnOrder) String() string {
 	if o.Uploaded == nil {
-		return fmt.Sprintf("Number:%s Withdrawn:%f", o.Number, *o.Withdrawn)
+		return fmt.Sprintf("Number:%s Withdrawn:%f", o.Number, o.Withdrawn)
 	}
-	return fmt.Sprintf("Number:%s Withdrawn:%f Uploaded:%v", o.Number, *o.Withdrawn, *o.Uploaded)
+	return fmt.Sprintf("Number:%s Withdrawn:%f Uploaded:%v", o.Number, o.Withdrawn, *o.Uploaded)
 }
 
 func (db *DB) GetWithdrawals(ctx context.Context, userID uint64) ([]WithdrawnOrder, error) {
@@ -64,14 +64,14 @@ func (db *DB) PostWithdrawal(ctx context.Context, userID uint64, order *Withdraw
 		}
 		b = NewBalance(0, 0)
 	}
-	if *b.Current < *order.Withdrawn {
+	if b.Current < order.Withdrawn {
 		return fmt.Errorf(ErrNotEnoughFounds)
 	}
-	if _, err := tx.ExecContext(ctx, insertWithdrawalSQL, userID, order.Number, *order.Withdrawn, `now`); err != nil {
+	if _, err := tx.ExecContext(ctx, insertWithdrawalSQL, userID, order.Number, order.Withdrawn, `now`); err != nil {
 		db.lg.Println(err)
 		return err
 	}
-	if _, err := tx.ExecContext(ctx, updateBalanceSQL, userID, *b.Current-*order.Withdrawn, *b.Withdrawn+*order.Withdrawn); err != nil {
+	if _, err := tx.ExecContext(ctx, updateBalanceSQL, userID, b.Current-order.Withdrawn, b.Withdrawn+order.Withdrawn); err != nil {
 		db.lg.Println(err)
 		return err
 	}

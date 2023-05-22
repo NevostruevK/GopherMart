@@ -116,5 +116,6 @@ func (w worker) getOrder(ctx context.Context, number string) (*task.Order, int, 
 		w.lg.Println(err)
 		return nil, http.StatusOK, err
 	}
+	w.lg.Println(order)
 	return &order, http.StatusOK, nil
 }

@@ -2,18 +2,23 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"strings"
 )
 
 const errNoBalance = `sql: no rows in result set`
 
 type Balance struct {
-	Current   *float64 `json:"current"`   // Баланс баллов
-	Withdrawn *float64 `json:"withdrawn"` // Списано баллов
+	Current   float64 `json:"current"`   // Баланс баллов
+	Withdrawn float64 `json:"withdrawn"` // Списано баллов
+}
+
+func (b Balance) String() string{
+	return fmt.Sprintf("balance %f :%f ",b.Current, b.Withdrawn)
 }
 
 func NewBalance(current, withdrawn float64) *Balance {
-	return &Balance{&current, &withdrawn}
+	return &Balance{current, withdrawn}
 }
 
 func (db *DB) GetBalance(ctx context.Context, userID uint64) (*Balance, error) {

@@ -45,7 +45,7 @@ func TestDB_PostWithdrawnOrder(t *testing.T) {
 			args: args{
 				ctx:    ctx,
 				userID: users[1],
-				order:  &WithdrawnOrder{Number: order, Withdrawn: &withdrawal},
+				order:  &WithdrawnOrder{Number: order, Withdrawn: withdrawal},
 			},
 			wantErr: true,
 			waitErr: ErrNotEnoughFounds,
@@ -56,7 +56,7 @@ func TestDB_PostWithdrawnOrder(t *testing.T) {
 			args: args{
 				ctx:    ctx,
 				userID: users[0],
-				order:  &WithdrawnOrder{Number: order, Withdrawn: &bigWithdrawal},
+				order:  &WithdrawnOrder{Number: order, Withdrawn: bigWithdrawal},
 			},
 			wantErr: true,
 			waitErr: ErrNotEnoughFounds,
@@ -67,7 +67,7 @@ func TestDB_PostWithdrawnOrder(t *testing.T) {
 			args: args{
 				ctx:    ctx,
 				userID: users[0],
-				order:  &WithdrawnOrder{Number: order, Withdrawn: &withdrawal},
+				order:  &WithdrawnOrder{Number: order, Withdrawn: withdrawal},
 			},
 			wantErr: false,
 			waitErr: "",
@@ -78,7 +78,7 @@ func TestDB_PostWithdrawnOrder(t *testing.T) {
 			args: args{
 				ctx:    ctx,
 				userID: users[0],
-				order:  &WithdrawnOrder{Number: order, Withdrawn: &withdrawal},
+				order:  &WithdrawnOrder{Number: order, Withdrawn: withdrawal},
 			},
 			wantErr: true,
 			waitErr: errDuplicateWithdrawal,

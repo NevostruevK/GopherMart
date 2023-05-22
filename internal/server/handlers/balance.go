@@ -32,6 +32,7 @@ func GetBalance(s *db.DB) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		lg.Println(balance)
 		data, err := json.Marshal(&balance)
 		if err != nil {
 			lg.Println(err)
@@ -40,6 +41,5 @@ func GetBalance(s *db.DB) http.HandlerFunc {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(data)
-
 	}
 }

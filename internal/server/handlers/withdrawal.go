@@ -36,7 +36,7 @@ func PostWithdraw(s *db.DB) http.HandlerFunc {
 			return
 		}
 		lg.Println(wOrder)
-		if wOrder.Withdrawn == nil {
+		if wOrder.Withdrawn == 0 {
 			lg.Println(errSumUncorrect)
 			http.Error(w, errSumUncorrect, http.StatusBadRequest)
 			return
@@ -94,6 +94,7 @@ func GetWithdrawals(s *db.DB) http.HandlerFunc {
 			http.Error(w, errNoWithdrawals, http.StatusNoContent)
 			return
 		}
+		lg.Println(wOrders)
 		data, err := json.Marshal(&wOrders)
 		if err != nil {
 			lg.Println(err)
