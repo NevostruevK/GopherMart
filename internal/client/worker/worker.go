@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"strings"
 	"sync/atomic"
 
@@ -20,18 +19,14 @@ import (
 type worker struct {
 	client      *http.Client
 	lg          *log.Logger
-	url         url.URL
+	url         string
 	freeWorkers *int32
 }
 
 func NewWorker(address string, id uint64, free *int32) *worker {
 	name := fmt.Sprintf("worker %d ", id)
 	lg := logger.NewLogger(name, log.Lshortfile|log.LstdFlags)
-	url := url.URL{
-		Scheme: "http",
-		Host:   address,
-	}
-	return &worker{&http.Client{}, lg, url, free}
+	return &worker{&http.Client{}, lg, address, free}
 }
 
 func (w worker) free() {
@@ -86,8 +81,8 @@ func (w worker) wrongCompletition(ctx context.Context, task task.Task, err error
 }
 
 func (w worker) getOrder(ctx context.Context, number string) (*task.Order, int, error) {
-	w.url.Path = "/"+number
-	request, err := http.NewRequestWithContext(ctx, http.MethodGet, w.url.String(), nil)
+	w.url += "/"+number
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, w.url, nil)
 	if err != nil {
 		w.lg.Println(err)
 		return nil, 0, err
