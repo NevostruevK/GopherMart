@@ -92,6 +92,7 @@ func GetOrders(s *db.DB) http.HandlerFunc {
 			http.Error(w, errNoOrders, http.StatusNoContent)
 			return
 		}
+		lg.Println(orders)
 		data, err := json.Marshal(&orders)
 		if err != nil {
 			lg.Println(err)

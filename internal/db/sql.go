@@ -11,8 +11,8 @@ const (
 	createBalancesSQL = `
 		CREATE TABLE IF NOT EXISTS balances (
 			user_id int PRIMARY KEY REFERENCES users(user_id) NOT NULL,
-			current	numeric(10,1) NOT NULL,
-			withdrawn numeric(10,1) NOT NULL
+			current	numeric(10,2) NOT NULL,
+			withdrawn numeric(10,2) NOT NULL
 		)
 	`
 	createOrdersSQL = `
@@ -25,7 +25,7 @@ const (
 			number text UNIQUE NOT NULL,
 			user_id int REFERENCES users(user_id) NOT NULL,
 			status status_enum NOT NULL, 
-			accrual	numeric(10,1),
+			accrual	numeric(10,2),
 			uploaded_at TIMESTAMP WITH TIME ZONE NOT NULL
 		)
 	`
@@ -33,7 +33,7 @@ const (
 		CREATE TABLE IF NOT EXISTS withdrawal (
 			number text UNIQUE NOT NULL,
 			user_id int REFERENCES users(user_id) NOT NULL,
-			withdrawn numeric(10,1),
+			withdrawn numeric(10,2),
 			uploaded_at TIMESTAMP WITH TIME ZONE NOT NULL
 		)
 	`
