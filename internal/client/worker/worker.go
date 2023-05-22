@@ -29,7 +29,7 @@ func NewWorker(address string, id uint64, free *int32) *worker {
 	lg := logger.NewLogger(name, log.Lshortfile|log.LstdFlags)
 	url := url.URL{
 		Scheme: "http",
-		Host:   address + "/",
+		Host:   address,
 	}
 	return &worker{&http.Client{}, lg, url, free}
 }
@@ -86,7 +86,7 @@ func (w worker) wrongCompletition(ctx context.Context, task task.Task, err error
 }
 
 func (w worker) getOrder(ctx context.Context, number string) (*task.Order, int, error) {
-	w.url.Path = number
+	w.url.Path = "/"+number
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, w.url.String(), nil)
 	if err != nil {
 		w.lg.Println(err)
