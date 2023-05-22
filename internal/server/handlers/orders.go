@@ -31,7 +31,7 @@ func PostOrder(s *db.DB, m *client.Manager) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		lg.Println(b)
+		lg.Println(string(b))
 		if !luhn.Valid(b) {
 			lg.Println(errWrongNumber)
 			http.Error(w, errWrongNumber, http.StatusUnprocessableEntity)
