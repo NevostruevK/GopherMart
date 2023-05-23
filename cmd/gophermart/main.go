@@ -18,9 +18,11 @@ func main() {
 	gracefulShutdown := make(chan os.Signal, 1)
 	signal.Notify(gracefulShutdown, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	ctx, cancel := context.WithCancel(context.Background())
-	//	defer cancel()
 	lg := logger.NewLogger("main : ", log.LstdFlags|log.Lshortfile)
-	opt, _ := option.GetOptions()
+	opt, err := option.GetOptions()
+	if err != nil {
+		lg.Printf("GetOptions() error %v", err)
+	}
 	db, err := db.NewDB(ctx, opt.DatabaseURI)
 	if err != nil {
 		lg.Println(err)
@@ -34,7 +36,8 @@ func main() {
 	go m.Start(ctx, db, opt.AccrualSystemAddress, 1)
 	s, err := server.NewServer(db, opt.RunAddress, m)
 	if err != nil {
-		lg.Fatalln(err)
+		lg.Println(err)
+		return
 	}
 	lg.Printf("Start server")
 	go func() {

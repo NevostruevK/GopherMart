@@ -81,7 +81,7 @@ func (w worker) wrongCompletition(ctx context.Context, task task.Task, err error
 }
 
 func (w worker) getOrder(ctx context.Context, number string) (*task.Order, int, error) {
-	w.url += "/api/orders/"+number
+	w.url += "/api/orders/" + number
 	w.lg.Println(w.url)
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, w.url, nil)
 	if err != nil {

@@ -19,11 +19,11 @@ const (
 	PROCESSED  status = "PROCESSED"
 )
 
-func (o Order) String() string{
-	if o.Accrual == nil{
-		return fmt.Sprintf("%s : %s ",o.Number, o.Status)
-	}	
-	return  fmt.Sprintf("%s : %s : %f",o.Number, o.Status, *o.Accrual)
+func (o Order) String() string {
+	if o.Accrual == nil {
+		return fmt.Sprintf("%s : %s ", o.Number, o.Status)
+	}
+	return fmt.Sprintf("%s : %s : %f", o.Number, o.Status, *o.Accrual)
 }
 
 const (
@@ -50,7 +50,6 @@ type Task struct {
 	ErrorsNumber uint32
 	TriesNumber  uint32
 	Finished     bool
-//	lg           log.Logger
 	fifo         chan Task
 	Order        *Order
 }
@@ -62,26 +61,20 @@ func NewTask(userID, taskID uint64, fifo chan Task, number string) *Task {
 		ErrorsNumber: 0,
 		TriesNumber:  0,
 		Finished:     false,
-//		lg: *logger.NewLogger(fmt.Sprintf("task %d :", taskID),
-//			log.Lshortfile|log.LstdFlags),
-		fifo:  fifo,
-		Order: &Order{Number: number, Status: NEW},
+		fifo:         fifo,
+		Order:        &Order{Number: number, Status: NEW},
 	}
 }
 func (t Task) StandInLine() {
-//	t.lg.Println("stand in line")
 	t.fifo <- t
-//	t.lg.Println("manager took me")
 }
 
 func (t *Task) SetError(err error) {
 	t.ErrorsNumber++
-//	t.lg.Printf("ERROR : %v", err)
 }
 
 func (t *Task) SetTry(code int) {
 	t.TriesNumber++
-//	t.lg.Printf("CODE : %d", code)
 }
 
 func (t *Task) NeedUpdateOrder(o Order) bool {

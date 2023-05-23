@@ -83,10 +83,19 @@ const (
 		UPDATE balances SET current = $2
 		WHERE user_id = $1
 	`
+	/*	insertOrderSQL = `
+			INSERT INTO orders (user_id, number, status, uploaded_at)
+			VALUES ($1, $2, $3, $4)
+			ON CONFLICT (number)
+			DO UPDATE SET number = $2
+			RETURNING user_id
+		`
+	*/
 	insertOrderSQL = `
 		INSERT INTO orders (user_id, number, status, uploaded_at)
 		VALUES ($1, $2, $3, $4)
 	`
+
 	insertWithdrawalSQL = `
 		INSERT INTO withdrawal (user_id, number, withdrawn, uploaded_at)
 		VALUES ($1, $2, $3, $4)

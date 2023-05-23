@@ -7,7 +7,6 @@ import (
 const ErrDuplicateLogin = `pq: duplicate key value violates unique constraint "users_login_key"`
 
 type User struct {
-	//	ID       int64
 	Login    string `json:"login"`
 	Password string `json:"password"`
 }

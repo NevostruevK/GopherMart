@@ -43,12 +43,12 @@ func Authentication(s *db.DB, tk *token.Token, rType requestType) http.HandlerFu
 		lg := middleware.GetLogger(r)
 		lg.Println(rType)
 		b, err := io.ReadAll(r.Body)
-		defer r.Body.Close()
 		if err != nil {
 			lg.Println(err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		defer r.Body.Close()
 		u := db.User{}
 		err = json.Unmarshal(b, &u)
 		if err != nil {
@@ -86,8 +86,5 @@ func Authentication(s *db.DB, tk *token.Token, rType requestType) http.HandlerFu
 		}
 		lg.Printf("login user %d", ID)
 		w.Header().Set("Authorization", token)
-
-		//		io.WriteString(w, fmt.Sprintln(id))
-		//	w.Write(id)
 	}
 }

@@ -37,10 +37,8 @@ func PostOrder(s *db.DB, m *client.Manager) http.HandlerFunc {
 			http.Error(w, errWrongNumber, http.StatusUnprocessableEntity)
 			return
 		}
-		userID, ok := r.Context().Value(middleware.KeyUserID).(uint64)
+		userID, ok := getUserID(w, r, lg)
 		if !ok {
-			lg.Println(errExtractUserID)
-			http.Error(w, errExtractUserID, http.StatusInternalServerError)
 			return
 		}
 		orderUserID, err := s.PostOrder(r.Context(), userID, string(b))
@@ -69,16 +67,14 @@ func GetOrders(s *db.DB) http.HandlerFunc {
 		lg := middleware.GetLogger(r)
 		lg.Println("GetOrders")
 		_, err := io.ReadAll(r.Body)
-		defer r.Body.Close()
 		if err != nil {
 			lg.Println(err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		userID, ok := r.Context().Value(middleware.KeyUserID).(uint64)
+		defer r.Body.Close()
+		userID, ok := getUserID(w, r, lg)
 		if !ok {
-			lg.Println(errExtractUserID)
-			http.Error(w, errExtractUserID, http.StatusInternalServerError)
 			return
 		}
 		orders, err := s.GetOrders(r.Context(), userID)
