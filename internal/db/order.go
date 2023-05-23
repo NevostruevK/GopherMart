@@ -3,8 +3,8 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
-	"strings"
 	"time"
 )
 
@@ -26,16 +26,15 @@ func (o Order) String() string {
 }
 
 func (db *DB) PostOrder(ctx context.Context, userID uint64, order string) (uint64, error) {
-	if _, err := db.db.ExecContext(ctx, insertOrderSQL, userID, order, `NEW`, `now`); err != nil {
-		db.lg.Println(err)
-		if !strings.Contains(err.Error(), ErrDuplicateOrder) {
+	var id uint64
+	if err := db.db.QueryRowContext(ctx, insertOrderSQL, userID, order, `NEW`, `now`).Scan(&id); err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			db.lg.Printf("ERROR : insert order %s for user %d : %v\n", order, userID, err)
 			return 0, err
 		}
-		var id uint64
-		if err := db.db.QueryRowContext(ctx, getUserForOrderSQL, order).Scan(&id); err != nil {
-			db.lg.Printf("ERROR : getUserForOrder %s %v\n", order, err)
-			return 0, err
-		}
+		return userID, fmt.Errorf(ErrDuplicateOrder)
+	}
+	if id != userID {
 		return id, fmt.Errorf(ErrDuplicateOrder)
 	}
 	return userID, nil
